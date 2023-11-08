@@ -4,6 +4,7 @@ import 'package:firstly/models/get_user_transaction.dart';
 import 'package:firstly/screens/combine_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +18,8 @@ class _MyWidgetState extends State<HomeScreen> {
   //document IDs
   List<String> docIDs = [];
   bool docIdFetched = false; // Add a flag to track if docIds have been fetched
-
+  // Add a Future to store the result of getDocId
+  late Future<void> docIdFuture;
   //get docIDs
   Future getDocId() async {
     if (docIdFetched) {
@@ -100,8 +102,24 @@ class _MyWidgetState extends State<HomeScreen> {
 
   //Barchart Components End Here
 
+  Color getIconButtonColor() {
+    double income = totalIncome;
+    double expense = totalExpense;
+    if (income > expense) {
+      return Color(0xFF39D2C0);
+    } else if (income < expense) {
+      return Color(0xffFF6D33);
+    } else if (expense > 1.8 * income) {
+      return Color(0xFFE74852);
+    } else {
+      return Color(
+          0xFF9489F5); // Default color, or change it to the desired color
+    }
+  }
+
   @override
   void initState() {
+    docIdFuture = getDocId(); // Call getDocId and store the future
     fetchBarchartData();
     fetchBarchartMax();
   }
@@ -206,12 +224,41 @@ class _MyWidgetState extends State<HomeScreen> {
                             ),
                             child: Icon(
                               Icons.notifications_rounded,
-                              color: Color(0xFF6D5FED),
+                              color: getIconButtonColor(),
                               size: 30,
                             ),
                           ),
                           onPressed: () {
-                            print('IconButton pressed ...');
+                            double income = totalIncome;
+                            double expense = totalExpense;
+                            if (income > expense) {
+                              // Good message with green color
+                              Fluttertoast.showToast(
+                                msg: "Spending Behavior Optimal",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                textColor: Colors.white,
+                              );
+                            } else if (income < expense) {
+                              // Not good message with orange color
+                              Fluttertoast.showToast(
+                                msg: "Spending Behavior Average",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                textColor: Colors.white,
+                              );
+                            } else if (expense > 1.8 * income) {
+                              // Assuming 80% more means 1.8 times more
+                              // Bad message with red color
+                              Fluttertoast.showToast(
+                                msg: "Spending Behavior At Critial",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                textColor: Colors.white,
+                              );
+                            } else {
+                              // Handle other cases or display a default message
+                            }
                           },
                         ),
                       ],
@@ -260,7 +307,7 @@ class _MyWidgetState extends State<HomeScreen> {
                   Padding(
                     padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 24),
                     child: FutureBuilder(
-                        future: getDocId(),
+                        future: docIdFuture, // Use the stored future
                         builder: (context, snapshot) {
                           return ListView.builder(
                               padding: EdgeInsets.zero,
@@ -307,7 +354,7 @@ class _MyWidgetState extends State<HomeScreen> {
             BarChartRodData rod,
             int rodIndex,
           ) {
-            String tooltipText = rod.toY.round().toString();
+            String tooltipText = 'RM ' + rod.toY.toStringAsFixed(2);
             Color tooltipColor;
 
             switch (groupIndex) {
@@ -401,6 +448,13 @@ class _MyWidgetState extends State<HomeScreen> {
           x: 0,
           barRods: [
             BarChartRodData(
+              width: 35,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(0),
+                bottomRight: Radius.circular(0),
+                topLeft: Radius.circular(0),
+                topRight: Radius.circular(0),
+              ),
               toY: totalIncome,
               gradient: LinearGradient(
                   colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
@@ -414,6 +468,13 @@ class _MyWidgetState extends State<HomeScreen> {
           x: 1,
           barRods: [
             BarChartRodData(
+              width: 35,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(0),
+                bottomRight: Radius.circular(0),
+                topLeft: Radius.circular(0),
+                topRight: Radius.circular(0),
+              ),
               toY: totalExpense.toDouble(),
               gradient: LinearGradient(
                   colors: [Color(0xFFFF6D33), Color(0xFFE74852)],
@@ -427,6 +488,13 @@ class _MyWidgetState extends State<HomeScreen> {
           x: 2,
           barRods: [
             BarChartRodData(
+              width: 35,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(0),
+                bottomRight: Radius.circular(0),
+                topLeft: Radius.circular(0),
+                topRight: Radius.circular(0),
+              ),
               toY: 20.21,
               gradient: LinearGradient(
                   colors: [Color(0xFF39D2C0), Color(0xFF24A891)],

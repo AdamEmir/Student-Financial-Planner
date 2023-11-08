@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class PiechartScreen extends StatefulWidget {
   const PiechartScreen({super.key});
@@ -12,226 +14,303 @@ class PiechartScreen extends StatefulWidget {
 class _PiechartScreenState extends State<PiechartScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+  final incomeAmountController = TextEditingController();
+  String dropdownValue = 'Cash';
+
   // Get the collection reference
   CollectionReference transactionsRef =
       FirebaseFirestore.instance.collection('transactions');
-  CollectionReference barchartMaxRef =
-      FirebaseFirestore.instance.collection('userbarchartmax');
-  double totalIncome = 0.00;
-  double totalExpense = 0.00;
-  double parsebarchartMax = 0.00;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
-    fetchBarcharMax();
-  }
-
-  void fetchData() async {
+  void saveDataToFirestore(String dropdownValue, double incomeAmount) async {
     final User? user = auth.currentUser;
     final useremail = user?.email;
 
-    QuerySnapshot snapshot =
-        await transactionsRef.where('email', isEqualTo: useremail).get();
+    final currentbarchartmax = await getUserbarchartmax(useremail!);
 
-    for (QueryDocumentSnapshot doc in snapshot.docs) {
-      // Assuming your Firestore document structure has 'type' and 'amount' fields
-      String transactionType = doc['transaction type'];
-      String transactionAmount = doc['transaction amount'];
-      double calculationtransactionAmount = double.parse(transactionAmount);
+    final totalbarchartmax = currentbarchartmax + incomeAmount;
 
-      if (transactionType == 'Income') {
-        totalIncome += calculationtransactionAmount;
-      } else if (transactionType == 'Expense') {
-        totalExpense += calculationtransactionAmount;
-      }
+    setUserbarchartmax(totalbarchartmax, useremail);
+
+    final formattedIncomeAmout = incomeAmount.toStringAsFixed(2);
+
+    // Get the user's unique ID (you can use the user's email as well)
+    if (useremail != null) {
+      transactionsRef.add({
+        'email': useremail,
+        'transaction amount': formattedIncomeAmout,
+        'transaction category': dropdownValue,
+        'transaction date': Timestamp.now(),
+        'transaction type': 'Income'
+      }).then((value) {
+        // Data added successfully
+        print('Data added to Firestore.');
+      }).catchError((error) {
+        // Error handling
+        print('Error adding data to Firestore: $error');
+      });
     }
-
-    // Update the state to trigger a redraw of the chart
-    setState(() {});
   }
 
-  void fetchBarcharMax() async {
-    final User? user = auth.currentUser;
-    final useremail = user?.email;
-
-    QuerySnapshot snapshot =
-        await barchartMaxRef.where('email', isEqualTo: useremail).get();
-
-    for (QueryDocumentSnapshot doc in snapshot.docs) {
-      // Assuming your Firestore document structure has 'type' and 'amount' fields
-
-      String barchartMax = doc['barchartmax'];
-      parsebarchartMax = double.parse(barchartMax);
+  Future getUserbarchartmax(String useremail) async {
+    final UserbarchartmaxRef =
+        FirebaseFirestore.instance.collection('userbarchartmax').doc(useremail);
+    final UserbarchartmaxDoc = await UserbarchartmaxRef.get();
+    if (UserbarchartmaxDoc.exists) {
+      return double.parse(UserbarchartmaxDoc.get('barchartmax'));
+    } else {
+      return 0;
     }
+  }
 
-    // Update the state to trigger a redraw of the chart
-    setState(() {});
+  Future setUserbarchartmax(double totalbarchartmax, String useremail) async {
+    await FirebaseFirestore.instance
+        .collection('userbarchartmax')
+        .doc(useremail)
+        .set({
+      'barchartmax': totalbarchartmax.toString(),
+      'updated at': Timestamp.now(),
+      'email': useremail,
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final User? user = auth.currentUser;
     final useremail = user?.email;
-    return Container(
-      padding: EdgeInsetsDirectional.fromSTEB(16, 42, 16, 12),
-      width: 370,
-      height: 220,
-      child: BarChart(
-        BarChartData(
-          barTouchData: barTouchData,
-          titlesData: titlesData,
-          borderData: borderData,
-          barGroups: barGroups,
-          gridData: const FlGridData(show: false),
-          alignment: BarChartAlignment.spaceAround,
-          maxY: parsebarchartMax,
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: double.infinity,
+            height: 790,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
+                stops: [0, 1],
+                begin: AlignmentDirectional(0, -1),
+                end: AlignmentDirectional(0, 1),
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(0, 180, 0, 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 390,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFFFFFF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional(0.00, 0.00),
+                        child: Padding(
+                          padding:
+                              EdgeInsetsDirectional.fromSTEB(32, 32, 32, 32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'State Your Income',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 35.0,
+                                    color: Color(0xFF101213)),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0, 12, 0, 24),
+                                child: Text(
+                                  'State your income by filling out the form below.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.0,
+                                      color: Color(0xFF57636C)),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xFFF1F4F8),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Color(0xFFE0E3E7), width: 2)),
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        11, 0, 0, 0),
+                                    child: DropdownButton(
+                                      elevation: 8,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 14.0,
+                                          color: Color(0xFF101213)),
+                                      value: dropdownValue,
+                                      onChanged: (String? newValue) {
+                                        // This is called when the user selects an item.
+                                        setState(() {
+                                          dropdownValue = newValue!;
+                                        });
+                                      },
+                                      items: <String>[
+                                        'Cash',
+                                        'Card',
+                                        'Allowance'
+                                      ].map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                      icon: Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            200, 0, 0, 0),
+                                        child: Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          color: Color(0xFF57636C),
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
+                                child: Container(
+                                  width: double.infinity,
+                                  child: TextFormField(
+                                    controller: incomeAmountController,
+                                    autofocus: true,
+                                    obscureText: false,
+                                    decoration: InputDecoration(
+                                      labelText: 'Income Amount',
+                                      labelStyle: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14.0,
+                                          color: Color(0xFF57636C)),
+                                      alignLabelWithHint: false,
+                                      hintStyle: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12.0,
+                                          color: Color(0xFF57636C)),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFFF1F4F8),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFF9489F5),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFFE0E3E7),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFFE74852),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: Color(0xFFF1F4F8),
+                                    ),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16.0,
+                                        color: Color(0xFF101213)),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0, 16, 0, 16),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.transparent,
+                                        width: 1,
+                                      )),
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.resolveWith(
+                                              (states) {
+                                        if (states
+                                            .contains(MaterialState.pressed)) {
+                                          return Color(0xFF6D5FED);
+                                        }
+                                        return Color(0xFF9489F5);
+                                      }),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      String selectedDropdownValue =
+                                          dropdownValue;
+                                      double incomeAmount = double.parse(
+                                          incomeAmountController.text);
+
+                                      saveDataToFirestore(
+                                          selectedDropdownValue, incomeAmount);
+                                    },
+                                    child: const Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16.0,
+                                        color: Color(0xFFFFFFFF),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
-
-  BarTouchData get barTouchData => BarTouchData(
-        enabled: false,
-        touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: Colors.transparent,
-          tooltipPadding: EdgeInsets.zero,
-          tooltipMargin: 8,
-          getTooltipItem: (
-            BarChartGroupData group,
-            int groupIndex,
-            BarChartRodData rod,
-            int rodIndex,
-          ) {
-            String tooltipText = rod.toY.round().toString();
-            Color tooltipColor;
-
-            switch (groupIndex) {
-              case 0:
-                tooltipColor = Color(0xFF6D5FED); // Income
-                break;
-              case 1:
-                tooltipColor = Color(0xFFE74852); // Expense
-                break;
-              case 2:
-                tooltipColor = Color(0xFF24A891); // Saving
-                break;
-              default:
-                tooltipColor = Colors.cyan; // Default color
-                break;
-            }
-
-            return BarTooltipItem(
-              tooltipText,
-              TextStyle(
-                color: tooltipColor,
-                fontWeight: FontWeight.bold,
-              ),
-            );
-          },
-        ),
-      );
-
-  Widget getTitles(double value, TitleMeta meta) {
-    String text;
-    Color textColor;
-
-    switch (value.toInt()) {
-      case 0:
-        text = 'Income';
-        textColor = Color(0xFF9489F5);
-        break;
-      case 1:
-        text = 'Expense';
-        textColor = Color(0xFFFF6D33);
-        break;
-      case 2:
-        text = 'Saving';
-        textColor = Color(0xFF39D2C0);
-        break;
-      default:
-        text = '';
-        textColor = Colors.black; // Default color
-        break;
-    }
-
-    final style = TextStyle(
-      color: textColor,
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    );
-
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 4,
-      child: Text(text, style: style),
-    );
-  }
-
-  FlTitlesData get titlesData => FlTitlesData(
-        show: true,
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-            getTitlesWidget: getTitles,
-          ),
-        ),
-        leftTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-      );
-
-  FlBorderData get borderData => FlBorderData(
-        show: false,
-      );
-
-  List<BarChartGroupData> get barGroups => [
-        BarChartGroupData(
-          x: 0,
-          barRods: [
-            BarChartRodData(
-              toY: totalIncome,
-              gradient: LinearGradient(
-                  colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter),
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 1,
-          barRods: [
-            BarChartRodData(
-              toY: totalExpense.toDouble(),
-              gradient: LinearGradient(
-                  colors: [Color(0xFFFF6D33), Color(0xFFE74852)],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter),
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-        BarChartGroupData(
-          x: 2,
-          barRods: [
-            BarChartRodData(
-              toY: 20.21,
-              gradient: LinearGradient(
-                  colors: [Color(0xFF39D2C0), Color(0xFF24A891)],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter),
-            )
-          ],
-          showingTooltipIndicators: [0],
-        ),
-      ];
 }

@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     HomeScreen(),
     ExpensesScreen(),
-    PiechartScreen(),
+    AnalyticScreen(),
     ProfileScreen(),
   ];
 

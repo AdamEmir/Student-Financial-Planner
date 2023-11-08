@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firstly/reusable_widgets/reusable_widget.dart';
-import 'package:firstly/screens/home_screen.dart';
+import 'package:firstly/homepage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 
 class AllowanceScreen extends StatefulWidget {
   const AllowanceScreen({super.key});
@@ -16,105 +15,313 @@ class AllowanceScreen extends StatefulWidget {
 class _AllowanceScreenState extends State<AllowanceScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  DateTime _currentDate = DateTime.now();
-  TextEditingController _allowanceController = TextEditingController();
-  TextEditingController _dateController = TextEditingController();
+  final incomeAmountController = TextEditingController();
+  String dropdownValue = 'Cash';
 
-  handleSubmitAllowance() async {
-    final allowance = int.parse(_allowanceController.value.text);
-    final date = _dateController.value.text;
+  // Get the collection reference
+  CollectionReference transactionsRef =
+      FirebaseFirestore.instance.collection('transactions');
+
+  void saveDataToFirestore(String dropdownValue, double incomeAmount) async {
     final User? user = auth.currentUser;
     final useremail = user?.email;
 
-    final currentAllowance = await getAllowance(useremail!);
+    final currentbarchartmax = await getUserbarchartmax(useremail!);
 
-    final totalallowance = currentAllowance + allowance;
+    final totalbarchartmax = currentbarchartmax + incomeAmount;
 
-    addAllowance(totalallowance, date, useremail!);
+    setUserbarchartmax(totalbarchartmax, useremail);
 
+    final formattedIncomeAmout = incomeAmount.toStringAsFixed(2);
+
+    // Get the user's unique ID (you can use the user's email as well)
+    if (useremail != null) {
+      transactionsRef.add({
+        'email': useremail,
+        'transaction amount': formattedIncomeAmout,
+        'transaction category': dropdownValue,
+        'transaction date': Timestamp.now(),
+        'transaction type': 'Income'
+      }).then((value) {
+        // Data added successfully
+        print('Data added to Firestore.');
+      }).catchError((error) {
+        // Error handling
+        print('Error adding data to Firestore: $error');
+      });
+    }
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        context, MaterialPageRoute(builder: (context) => HomePage()));
 
     Fluttertoast.showToast(
-      msg: 'Allowance Inserted Successfully',
+      msg: 'Data added Successfully',
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
     );
   }
 
-  Future addAllowance(int totalallowance, String date, String useremail) async {
-    await FirebaseFirestore.instance
-        .collection('Allowance')
-        .doc(useremail)
-        .set({
-      'allowance': totalallowance,
-      'updated_at': Timestamp.now(),
-      'email': useremail,
-    });
-  }
-
-  Future getAllowance(String useremail) async {
-    final expensesRef =
-        FirebaseFirestore.instance.collection('Allowance').doc(useremail);
-    final expensesDoc = await expensesRef.get();
-    if (expensesDoc.exists) {
-      return expensesDoc.get('allowance');
+  Future getUserbarchartmax(String useremail) async {
+    final UserbarchartmaxRef =
+        FirebaseFirestore.instance.collection('userbarchartmax').doc(useremail);
+    final UserbarchartmaxDoc = await UserbarchartmaxRef.get();
+    if (UserbarchartmaxDoc.exists) {
+      return double.parse(UserbarchartmaxDoc.get('barchartmax'));
     } else {
       return 0;
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _dateController.text =
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(_currentDate);
+  Future setUserbarchartmax(double totalbarchartmax, String useremail) async {
+    await FirebaseFirestore.instance
+        .collection('userbarchartmax')
+        .doc(useremail)
+        .set({
+      'barchartmax': totalbarchartmax.toString(),
+      'updated at': Timestamp.now(),
+      'email': useremail,
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      //   title: const Text(
-      //     "Allowance",
-      //     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      //   ),
-      // ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        color: Colors.teal[200],
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              MediaQuery.of(context).size.height * 0.2,
-              20,
-              0,
+    final User? user = auth.currentUser;
+    final useremail = user?.email;
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: double.infinity,
+            height: 790,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
+                stops: [0, 1],
+                begin: AlignmentDirectional(0, -1),
+                end: AlignmentDirectional(0, 1),
+              ),
             ),
-            child: Column(children: <Widget>[
-              const SizedBox(
-                height: 30,
+            child: Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(0, 80, 0, 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 390,
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFFFFFF),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional(0.00, 0.00),
+                        child: Padding(
+                          padding:
+                              EdgeInsetsDirectional.fromSTEB(32, 32, 32, 32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'State Your Income',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 35.0,
+                                    color: Color(0xFF101213)),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0, 12, 0, 24),
+                                child: Text(
+                                  'State your income by filling out the form below.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14.0,
+                                      color: Color(0xFF57636C)),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xFFF1F4F8),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: Color(0xFFE0E3E7), width: 2)),
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        11, 0, 0, 0),
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton(
+                                        elevation: 8,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 14.0,
+                                            color: Color(0xFF101213)),
+                                        value: dropdownValue,
+                                        onChanged: (String? newValue) {
+                                          // This is called when the user selects an item.
+                                          setState(() {
+                                            dropdownValue = newValue!;
+                                          });
+                                        },
+                                        items: <String>[
+                                          'Cash',
+                                          'Card',
+                                          'Allowance'
+                                        ].map((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        }).toList(),
+                                        icon: Padding(
+                                          padding:
+                                              EdgeInsetsDirectional.fromSTEB(
+                                                  200, 0, 0, 0),
+                                          child: Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: Color(0xFF57636C),
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
+                                child: Container(
+                                  width: double.infinity,
+                                  child: TextFormField(
+                                    controller: incomeAmountController,
+                                    autofocus: true,
+                                    obscureText: false,
+                                    decoration: InputDecoration(
+                                      labelText: 'Income Amount',
+                                      labelStyle: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14.0,
+                                          color: Color(0xFF57636C)),
+                                      alignLabelWithHint: false,
+                                      hintStyle: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12.0,
+                                          color: Color(0xFF57636C)),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFFF1F4F8),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFF9489F5),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      errorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFFE0E3E7),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      focusedErrorBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Color(0xFFE74852),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      filled: true,
+                                      fillColor: Color(0xFFF1F4F8),
+                                    ),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16.0,
+                                        color: Color(0xFF101213)),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                            decimal: true),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(
+                                    0, 16, 0, 16),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.transparent,
+                                        width: 1,
+                                      )),
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.resolveWith(
+                                              (states) {
+                                        if (states
+                                            .contains(MaterialState.pressed)) {
+                                          return Color(0xFF6D5FED);
+                                        }
+                                        return Color(0xFF9489F5);
+                                      }),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      String selectedDropdownValue =
+                                          dropdownValue;
+                                      double incomeAmount = double.parse(
+                                          incomeAmountController.text);
+
+                                      saveDataToFirestore(
+                                          selectedDropdownValue, incomeAmount);
+                                    },
+                                    child: const Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16.0,
+                                        color: Color(0xFFFFFFFF),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              reusableNumField("Allowance", Icons.person_outline, false,
-                  _allowanceController),
-              const SizedBox(
-                height: 30,
-              ),
-              reusableCalenderField("Date: ${_dateController.text}",
-                  Icons.calendar_month_rounded, false, _dateController),
-              const SizedBox(
-                height: 30,
-              ),
-              submitButton(context, false, () {
-                handleSubmitAllowance();
-              })
-            ]),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
