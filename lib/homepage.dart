@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     HomeScreen(),
     ExpensesScreen(),
     AnalyticScreen(),
-    ProfileScreen(),
+    PiechartScreen(),
   ];
 
   @override

@@ -123,25 +123,25 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                                       .data() as Map<String, dynamic>;
                                   // Extract shopping and electronic data from Firestore
                                   int shoppingPercent =
-                                      data['shopping percent'] ?? 0;
+                                      data['Shopping percent'] ?? 0;
                                   String shoppingTitle =
-                                      data['shopping title'] ?? '';
+                                      data['Shopping title'] ?? '';
                                   int electronicPercent =
-                                      data['electronic percent'] ?? 0;
+                                      data['Electronic percent'] ?? 0;
                                   String electronicTitle =
-                                      data['electronic title'] ?? '';
+                                      data['Electronic title'] ?? '';
                                   int transportationPercent =
-                                      data['transportation percent'] ?? 0;
+                                      data['Transportation percent'] ?? 0;
                                   String transportationTitle =
-                                      data['transportation title'] ?? '';
+                                      data['Transportation title'] ?? '';
                                   int foodandbeveragePercent =
-                                      data['foodandbeverage percent'] ?? 0;
+                                      data['FoodandBeverage percent'] ?? 0;
                                   String foodandbeverageTitle =
-                                      data['foodandbeverage title'] ?? '';
+                                      data['FoodandBeverage title'] ?? '';
                                   int otherexpensesPercent =
-                                      data['otherexpenses percent'] ?? 0;
+                                      data['OtherExpenses percent'] ?? 0;
                                   String otherexpensesTitle =
-                                      data['otherexpenses title'] ?? '';
+                                      data['OtherExpenses title'] ?? '';
                                   return AspectRatio(
                                     aspectRatio: 1.3,
                                     child: AspectRatio(

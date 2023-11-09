@@ -321,7 +321,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                   .fromSTEB(0, 10, 0, 0),
                                               child: LinearPercentIndicator(
                                                 percent: shoppingPercent,
-                                                lineHeight: 20,
+                                                lineHeight: 26,
                                                 animation: true,
                                                 animateFromLastPercent: true,
                                                 progressColor: getProgressColor(
@@ -336,7 +336,8 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                     color: Color(0xFF101213),
                                                   ),
                                                 ),
-                                                padding: EdgeInsets.zero,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 0, 16, 0),
                                               ),
                                             ),
                                           ],
@@ -421,7 +422,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                   .fromSTEB(0, 10, 0, 0),
                                               child: LinearPercentIndicator(
                                                 percent: electronicPercent,
-                                                lineHeight: 20,
+                                                lineHeight: 26,
                                                 animation: true,
                                                 animateFromLastPercent: true,
                                                 progressColor: getProgressColor(
@@ -436,7 +437,8 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                     color: Color(0xFF101213),
                                                   ),
                                                 ),
-                                                padding: EdgeInsets.zero,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 0, 16, 0),
                                               ),
                                             ),
                                           ],
@@ -521,7 +523,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                   .fromSTEB(0, 10, 0, 0),
                                               child: LinearPercentIndicator(
                                                 percent: transportationPercent,
-                                                lineHeight: 20,
+                                                lineHeight: 26,
                                                 animation: true,
                                                 animateFromLastPercent: true,
                                                 progressColor: getProgressColor(
@@ -536,7 +538,8 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                     color: Color(0xFF101213),
                                                   ),
                                                 ),
-                                                padding: EdgeInsets.zero,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 0, 16, 0),
                                               ),
                                             ),
                                           ],
@@ -621,7 +624,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                   .fromSTEB(0, 10, 0, 0),
                                               child: LinearPercentIndicator(
                                                 percent: fnbPercent,
-                                                lineHeight: 20,
+                                                lineHeight: 26,
                                                 animation: true,
                                                 animateFromLastPercent: true,
                                                 progressColor: getProgressColor(
@@ -636,7 +639,8 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                     color: Color(0xFF101213),
                                                   ),
                                                 ),
-                                                padding: EdgeInsets.zero,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 0, 16, 0),
                                               ),
                                             ),
                                           ],
@@ -721,7 +725,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                   .fromSTEB(0, 10, 0, 0),
                                               child: LinearPercentIndicator(
                                                 percent: otherexpensesPercent,
-                                                lineHeight: 20,
+                                                lineHeight: 26,
                                                 animation: true,
                                                 animateFromLastPercent: true,
                                                 progressColor: getProgressColor(
@@ -736,7 +740,8 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                                     color: Color(0xFF101213),
                                                   ),
                                                 ),
-                                                padding: EdgeInsets.zero,
+                                                padding: EdgeInsets.fromLTRB(
+                                                    0, 0, 16, 0),
                                               ),
                                             ),
                                           ],

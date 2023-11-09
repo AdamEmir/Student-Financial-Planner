@@ -45,19 +45,24 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
       }).then((value) {
         // Data added successfully
         print('Data added to Firestore.');
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+
+        Fluttertoast.showToast(
+          msg: 'Data added Successfully',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+        );
       }).catchError((error) {
         // Error handling
         print('Error adding data to Firestore: $error');
+        Fluttertoast.showToast(
+          msg: 'Data added Failed',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+        );
       });
     }
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomePage()));
-
-    Fluttertoast.showToast(
-      msg: 'Data added Successfully',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-    );
   }
 
   Future getUserbarchartmax(String useremail) async {
@@ -150,6 +155,8 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                 padding:
                                     EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
                                 child: Container(
+                                  padding: EdgeInsetsDirectional.fromSTEB(
+                                      0, 0, 16, 0),
                                   width: double.infinity,
                                   height: 50,
                                   decoration: BoxDecoration(
@@ -187,7 +194,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                         icon: Padding(
                                           padding:
                                               EdgeInsetsDirectional.fromSTEB(
-                                                  200, 0, 0, 0),
+                                                  0, 0, 0, 0),
                                           child: Icon(
                                             Icons.keyboard_arrow_down_rounded,
                                             color: Color(0xFF57636C),
