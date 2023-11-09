@@ -57,6 +57,7 @@ class _MyWidgetState extends State<HomeScreen> {
   double totalIncome = 0.00;
   double totalExpense = 0.00;
   double parsebarchartMax = 0.00;
+  double totalIncomeDeduction = 0.00;
 
   void fetchBarchartData() async {
     final User? user = auth.currentUser;
@@ -77,6 +78,8 @@ class _MyWidgetState extends State<HomeScreen> {
         totalExpense += calculationtransactionAmount;
       }
     }
+
+    totalIncomeDeduction = totalIncome - totalExpense;
 
     // Update the state to trigger a redraw of the chart
     setState(() {});
@@ -103,7 +106,7 @@ class _MyWidgetState extends State<HomeScreen> {
   //Barchart Components End Here
 
   Color getIconButtonColor() {
-    double income = totalIncome;
+    double income = totalIncomeDeduction;
     double expense = totalExpense;
     if (income > expense) {
       return Color(0xFF39D2C0);
@@ -229,7 +232,7 @@ class _MyWidgetState extends State<HomeScreen> {
                             ),
                           ),
                           onPressed: () {
-                            double income = totalIncome;
+                            double income = totalIncomeDeduction;
                             double expense = totalExpense;
                             if (income > expense) {
                               // Good message with green color
@@ -455,7 +458,7 @@ class _MyWidgetState extends State<HomeScreen> {
                 topLeft: Radius.circular(0),
                 topRight: Radius.circular(0),
               ),
-              toY: totalIncome,
+              toY: totalIncomeDeduction,
               gradient: LinearGradient(
                   colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
                   begin: Alignment.bottomCenter,
