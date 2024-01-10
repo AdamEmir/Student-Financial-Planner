@@ -1,59 +1,54 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firstly/homepage.dart';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
-class AllowanceScreen extends StatefulWidget {
-  const AllowanceScreen({super.key});
+class ExpensesTransactionScreen extends StatefulWidget {
+  const ExpensesTransactionScreen({super.key});
 
   @override
-  State<AllowanceScreen> createState() => _AllowanceScreenState();
+  State<ExpensesTransactionScreen> createState() =>
+      _ExpensesTransactionScreenState();
 }
 
-class _AllowanceScreenState extends State<AllowanceScreen> {
+class _ExpensesTransactionScreenState extends State<ExpensesTransactionScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
-
-  final incomeAmountController = TextEditingController();
-  final incomeDescriptionController = TextEditingController();
-  final incomeDateController = TextEditingController();
-  String dropdownValue = 'Allowance';
-
-  // Get the collection reference
+  final transactionAmountController = TextEditingController();
+  final transactionDescriptionController = TextEditingController();
+  final transactionDateController = TextEditingController();
+  String dropdownValue = 'Shopping';
   CollectionReference transactionsRef =
       FirebaseFirestore.instance.collection('transactions');
+  CollectionReference pieChartDataRef =
+      FirebaseFirestore.instance.collection('piechartdata');
 
-  void saveDataToFirestore(String dropdownValue, double incomeAmount,
-      String incomeDescription, String incomeDate) async {
+  void saveDataToFirestore(String dropdownValue, double transactionAmount,
+      String transactionDescription, String transactionDate) async {
     final User? user = auth.currentUser;
     final useremail = user?.email;
 
-    final currentbarchartmax = await getUserbarchartmax(useremail!);
-
-    final totalbarchartmax = currentbarchartmax + incomeAmount;
-
-    setUserbarchartmax(totalbarchartmax, useremail);
-
-    final formattedIncomeAmout = incomeAmount.toStringAsFixed(2);
+    final formattedIncomeAmount = transactionAmount.toStringAsFixed(2);
 
     // Convert selectedDate to Timestamp
     final timestamp = Timestamp.fromDate(selectedDate);
 
-    // Get the user's unique ID (you can use the user's email as well)
     if (useremail != null) {
-      transactionsRef.add({
-        'email': useremail,
-        'transaction amount': formattedIncomeAmout,
-        'transaction category': dropdownValue,
-        'transaction type': 'Income',
-        'transaction description': incomeDescription,
-        'transaction date': timestamp,
-        'transaction date created': Timestamp.now(),
-      }).then((value) {
-        // Data added successfully
-        print('Data added to Firestore.');
+      try {
+        await transactionsRef.add({
+          'email': useremail,
+          'transaction amount': formattedIncomeAmount,
+          'transaction category': dropdownValue,
+          'transaction type': 'Expense',
+          'transaction description': transactionDescription,
+          'transaction date': timestamp,
+          'transaction date created': Timestamp.now(),
+        });
+
+        // Update pie chart data after adding a new transaction
+        updatePieChartData();
+
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
 
@@ -62,38 +57,112 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
         );
-      }).catchError((error) {
-        // Error handling
+      } catch (error) {
         print('Error adding data to Firestore: $error');
         Fluttertoast.showToast(
           msg: 'Data added Failed',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
         );
+      }
+    }
+  }
+
+  // Method to calculate pie chart data and update Firestore
+  Future<void> updatePieChartData() async {
+    final User? user = auth.currentUser;
+    final useremail = user?.email;
+    try {
+      QuerySnapshot transactionsSnapshot =
+          await transactionsRef.where('email', isEqualTo: useremail).get();
+
+      // Initialize category amounts
+      double shoppingAmount = 0;
+      double electronicAmount = 0;
+      double transportationAmount = 0;
+      double foodandbeverageAmount = 0;
+      double otherexpensesAmount = 0;
+
+      // Calculate category amounts based on transactions
+      for (QueryDocumentSnapshot transaction in transactionsSnapshot.docs) {
+        String category = transaction['transaction category'];
+        double amount = double.parse(transaction['transaction amount']);
+
+        switch (category) {
+          case 'Shopping':
+            shoppingAmount += amount;
+            break;
+          case 'Electronic':
+            electronicAmount += amount;
+            break;
+          case 'Transportation':
+            transportationAmount += amount;
+            break;
+          case 'FoodandBeverage':
+            foodandbeverageAmount += amount;
+            break;
+          case 'OtherExpenses':
+            otherexpensesAmount += amount;
+            break;
+          // Handle additional categories if needed
+        }
+      }
+
+      // Calculate total amount
+      double totalAmount = shoppingAmount +
+          electronicAmount +
+          transportationAmount +
+          foodandbeverageAmount +
+          otherexpensesAmount; // Add other categories if needed
+
+      // Calculate percentages based on total amount
+      double shoppingPercent = (shoppingAmount / totalAmount) * 100;
+      double electronicPercent = (electronicAmount / totalAmount) * 100;
+      double transportationPercent = (transportationAmount / totalAmount) * 100;
+      double foodandbeveragePercent =
+          (foodandbeverageAmount / totalAmount) * 100;
+      double otherexpensesPercent = (otherexpensesAmount / totalAmount) * 100;
+
+      int shoppingpercentInt = shoppingPercent.toInt();
+      int electronicpercentInt = electronicPercent.toInt();
+      int transportationpercentInt = transportationPercent.toInt();
+      int foodAndBeveragepercentInt = foodandbeveragePercent.toInt();
+      int otherExpensespercentInt = otherexpensesPercent.toInt();
+
+      // Update pie chart data in Firestore
+      await pieChartDataRef.doc(useremail).update({
+        'Shopping percent': shoppingpercentInt,
+        'Shopping title': shoppingpercentInt.toString(),
+        'Electronic percent': electronicpercentInt,
+        'Electronic title': electronicpercentInt.toString(),
+        'Transportation percent': transportationpercentInt,
+        'Transportation title': transportationpercentInt.toString(),
+        'FoodandBeverage percent': foodAndBeveragepercentInt,
+        'FoodandBeverage title': foodAndBeveragepercentInt.toString(),
+        'OtherExpenses percent': otherExpensespercentInt,
+        'OtherExpenses title': otherExpensespercentInt.toString(),
       });
+    } catch (error) {
+      print('Error updating pie chart data: $error');
     }
   }
 
-  Future getUserbarchartmax(String useremail) async {
-    final UserbarchartmaxRef =
-        FirebaseFirestore.instance.collection('userbarchartmax').doc(useremail);
-    final UserbarchartmaxDoc = await UserbarchartmaxRef.get();
-    if (UserbarchartmaxDoc.exists) {
-      return double.parse(UserbarchartmaxDoc.get('barchartmax'));
-    } else {
-      return 0;
-    }
-  }
+  Future<double> getTotalExpense() async {
+    double totalExpense = 0;
 
-  Future setUserbarchartmax(double totalbarchartmax, String useremail) async {
-    await FirebaseFirestore.instance
-        .collection('userbarchartmax')
-        .doc(useremail)
-        .set({
-      'barchartmax': totalbarchartmax.toString(),
-      'updated at': Timestamp.now(),
-      'email': useremail,
-    });
+    try {
+      QuerySnapshot expensesSnapshot =
+          await FirebaseFirestore.instance.collection('transactions').get();
+
+      for (QueryDocumentSnapshot expense in expensesSnapshot.docs) {
+        // Assuming there's a field named 'transaction amount' in each expense document
+        totalExpense += double.parse(expense['transaction amount']);
+      }
+    } catch (error) {
+      print('Error fetching total expense: $error');
+    }
+
+    return totalExpense;
   }
 
   DateTime selectedDate = DateTime.now();
@@ -119,7 +188,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
 
       setState(() {
         selectedDate = selectedDateTime;
-        incomeDateController.text =
+        transactionDateController.text =
             DateFormat("dd MMMM yyyy , hh:mm:ss a").format(selectedDateTime);
       });
     }
@@ -169,18 +238,18 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'State Your Income',
+                                    'State Your Expenses',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 35.0,
+                                        fontSize: 34.0,
                                         color: Color(0xFF101213)),
                                   ),
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0, 12, 0, 24),
                                     child: Text(
-                                      'State your income by filling out the form below.',
+                                      'State your expenses by filling out the form below.',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500,
@@ -221,10 +290,11 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                               });
                                             },
                                             items: <String>[
-                                              'Allowance',
-                                              'Business',
-                                              'Salary',
-                                              'Others'
+                                              'Shopping',
+                                              'Electronic',
+                                              'Transportation',
+                                              'FoodandBeverage',
+                                              'OtherExpenses'
                                             ].map((String value) {
                                               return DropdownMenuItem<String>(
                                                 value: value,
@@ -252,9 +322,9 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                     child: Container(
                                       width: double.infinity,
                                       child: TextFormField(
-                                        controller: incomeAmountController,
+                                        controller: transactionAmountController,
                                         decoration: InputDecoration(
-                                          labelText: 'Income Amount',
+                                          labelText: 'Transaction Amount',
                                           labelStyle: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14.0,
@@ -316,7 +386,8 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                     child: Container(
                                       width: double.infinity,
                                       child: TextFormField(
-                                        controller: incomeDescriptionController,
+                                        controller:
+                                            transactionDescriptionController,
                                         decoration: InputDecoration(
                                           labelText: 'Description',
                                           labelStyle: TextStyle(
@@ -379,7 +450,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                     child: Container(
                                       width: double.infinity,
                                       child: TextFormField(
-                                        controller: incomeDateController,
+                                        controller: transactionDateController,
                                         onTap: () => _selectDate(context),
                                         readOnly: true,
                                         decoration: InputDecoration(
@@ -473,20 +544,23 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                         onPressed: () {
                                           String selectedDropdownValue =
                                               dropdownValue;
-                                          double incomeAmount = double.parse(
-                                              incomeAmountController.text);
+                                          double transactionAmount =
+                                              double.parse(
+                                                  transactionAmountController
+                                                      .text);
 
-                                          String incomeDecription =
-                                              incomeDescriptionController.text;
+                                          String transactionDecription =
+                                              transactionDescriptionController
+                                                  .text;
 
-                                          String incomeDate =
-                                              incomeDateController.text;
+                                          String transactionDate =
+                                              transactionDateController.text;
 
                                           saveDataToFirestore(
                                               selectedDropdownValue,
-                                              incomeAmount,
-                                              incomeDecription,
-                                              incomeDate);
+                                              transactionAmount,
+                                              transactionDecription,
+                                              transactionDate);
                                         },
                                         child: const Text(
                                           "Submit",
@@ -499,14 +573,13 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                       ),
                                     ),
                                   ),
-                                  //Submit Button Ends
                                 ],
                               ),
                               Positioned(
                                 left: 13, // Adjust the position as needed
                                 top: 87, // Adjust the position as needed
                                 child: Text(
-                                  'Income Type',
+                                  'Transaction Type',
                                   style: TextStyle(
                                       color: Color(0xFF57636C),
                                       fontWeight: FontWeight.w500,

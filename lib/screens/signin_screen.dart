@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firstly/homepage.dart';
 import 'package:firstly/reusable_widgets/reusable_widget.dart';
+import 'package:firstly/screens/siginintest.dart';
 import 'package:flutter/material.dart';
 import 'package:firstly/screens/signup_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -58,7 +59,7 @@ class _MyWidgetState extends State<SignInScreen> {
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.white,
                       textColor: Colors.white,
                       fontSize: 16.0,
                     );
@@ -101,8 +102,8 @@ class _MyWidgetState extends State<SignInScreen> {
       const Text("Forgot password?", style: TextStyle(color: Colors.white70)),
       GestureDetector(
         onTap: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => SignUpScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SigninTestScreen()));
         },
         child: const Text(
           "Reset",

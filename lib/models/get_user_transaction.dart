@@ -8,24 +8,29 @@ class GetUserTransaction extends StatelessWidget {
   GetUserTransaction({required this.documentId});
 
   String formatTransactionDate(Timestamp timestamp) {
-    // Convert the timestamp to a DateTime object
-    final DateTime dateTime = timestamp.toDate();
+    try {
+      // Convert the timestamp to a DateTime object
+      final DateTime dateTime = timestamp.toDate();
 
-    // Format the DateTime object using the desired format
-    final DateFormat formatter = DateFormat('MMM. dd, HH:mm');
+      // Format the DateTime object using the desired format
+      final DateFormat formatter = DateFormat('MMM. dd, HH:mm');
 
-    // Return the formatted date string
-    return formatter.format(dateTime);
+      // Return the formatted date string
+      return formatter.format(dateTime);
+    } catch (e) {
+      print("Error parsing date: $e");
+      return "Invalid date";
+    }
   }
 
   IconData _getIconForCategory(String category) {
     switch (category) {
       case 'Shopping':
-        return Icons.shopping_cart;
+        return Icons.shopping_bag;
       case 'Electronic':
-        return Icons.laptop_rounded;
+        return Icons.devices;
       case 'Transportation':
-        return Icons.train_rounded;
+        return Icons.directions_car;
       case 'FoodandBeverage':
         return Icons.fastfood_rounded;
       case 'OtherExpenses':
@@ -77,8 +82,9 @@ class GetUserTransaction extends StatelessWidget {
                       padding: EdgeInsetsDirectional.fromSTEB(8, 0, 0, 0),
                       child: Card(
                         clipBehavior: Clip.antiAliasWithSaveLayer,
-                        color: Color(0xFF4D9489F5),
-                        elevation: 0,
+                        color: Color(0xFFFFFFFF),
+                        shadowColor: Color(0xFF9489F5),
+                        elevation: 4,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(40),
                         ),

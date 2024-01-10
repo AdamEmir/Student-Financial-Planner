@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class AnalyticScreen extends StatefulWidget {
   const AnalyticScreen({super.key});
@@ -61,6 +63,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
       String transactionType = doc['transaction type'];
       String transactionCategory = doc['transaction category'];
       String transactionAmount = doc['transaction amount'];
+
       double calculationtransactionAmount = double.parse(transactionAmount);
 
       if (transactionType == 'Expense') {
@@ -139,10 +142,89 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
     }
   }
 
+  CollectionReference transactiondata =
+      FirebaseFirestore.instance.collection('transactions');
+  double totalLineChartExpense = 0.00;
+  double expenseJanuary = 0.00;
+  double expenseFebruary = 0.00;
+  double expenseMarch = 0.00;
+  double expenseApril = 0.00;
+  double expenseMay = 0.00;
+  double expenseJune = 0.00;
+  double expenseJuly = 0.00;
+  double expenseAugust = 0.00;
+  double expenseSeptember = 0.00;
+  double expenseOctober = 0.00;
+  double expenseNovember = 0.00;
+  double expenseDecember = 0.00;
+  String formattedexpenseNovember = '';
+
+  void fetchLineChartData() async {
+    final User? user = auth.currentUser;
+    final useremail = user?.email;
+
+    QuerySnapshot snapshot =
+        await transactiondata.where('email', isEqualTo: useremail).get();
+
+    for (QueryDocumentSnapshot doc in snapshot.docs) {
+      try {
+        // Assuming your Firestore document structure has 'type' and 'amount' fields
+        String transactionType = doc['transaction type'];
+        String transactionAmount = doc['transaction amount'];
+        Timestamp timestamp = doc['transaction date'];
+        double calculationtransactionAmount = double.parse(transactionAmount);
+        // Convert Timestamp to DateTime
+        DateTime dateTime = timestamp.toDate();
+        // Extract the month from the DateTime
+        String month = DateFormat('MMMM').format(dateTime);
+
+        if (transactionType == 'Expense') {
+          totalLineChartExpense += calculationtransactionAmount;
+          if (month == 'January') {
+            expenseJanuary += calculationtransactionAmount;
+          } else if (month == 'February') {
+            expenseFebruary += calculationtransactionAmount;
+          } else if (month == 'March') {
+            expenseMarch += calculationtransactionAmount;
+          } else if (month == 'April') {
+            expenseApril += calculationtransactionAmount;
+          } else if (month == 'May') {
+            expenseMay += calculationtransactionAmount;
+          } else if (month == 'June') {
+            expenseJune += calculationtransactionAmount;
+          } else if (month == 'July') {
+            expenseJuly += calculationtransactionAmount;
+          } else if (month == 'August') {
+            expenseAugust += calculationtransactionAmount;
+          } else if (month == 'September') {
+            expenseSeptember += calculationtransactionAmount;
+          } else if (month == 'October') {
+            expenseOctober += calculationtransactionAmount;
+          } else if (month == 'November') {
+            expenseNovember += calculationtransactionAmount;
+          } else if (month == 'December') {
+            expenseDecember += calculationtransactionAmount;
+          }
+        }
+      } catch (error) {
+        print('Make Expense Transaction to Generate Chart');
+      }
+    }
+
+    setState(() {});
+  }
+
+  List<Color> gradientColors = [
+    Color(0xffffffff),
+    Color(0xFF9489F5),
+    Color(0xff9B3192),
+  ];
+
   @override
   void initState() {
     super.initState();
     fetchExpenseData();
+    fetchLineChartData();
   }
 
   @override
@@ -150,20 +232,17 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFF9489F5),
+        backgroundColor: Color(0xFF6D5FED),
       ),
       body: // Generated code for this Container Widget...
           Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
-            stops: [0, 1],
-            begin: AlignmentDirectional(0, -1),
-            end: AlignmentDirectional(0, 1),
-          ),
-        ),
+            image: DecorationImage(
+          image: AssetImage("assets/images/bg2.png"),
+          fit: BoxFit.cover,
+        )),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -172,9 +251,9 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
             children: [
               Container(
                 width: double.infinity,
-                height: 380,
+                height: 320,
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFFFFF),
+                  color: Color.fromARGB(255, 191, 186, 245),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(16),
                     bottomRight: Radius.circular(16),
@@ -188,23 +267,12 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                     Padding(
                       padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 0),
                       child: Text(
-                        'Analytics Spending',
+                        'Analytics',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 28.0,
-                            color: Color(0xFF101213)),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                      child: Text(
-                        'Line Graph',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12.0,
-                            color: Color(0xFF101213)),
+                            color: Color(0xffffffff)),
                       ),
                     ),
                     Column(
@@ -212,12 +280,25 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                       children: [
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 0),
-                          child: Text(
-                            'Line Char Art Here',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14.0,
-                                color: Color(0xFF101213)),
+                          child: Container(
+                            child: Stack(
+                              children: <Widget>[
+                                AspectRatio(
+                                  aspectRatio: 1.70,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 18,
+                                      left: 12,
+                                      top: 24,
+                                      bottom: 12,
+                                    ),
+                                    child: LineChart(
+                                      mainData(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -291,7 +372,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                               EdgeInsetsDirectional.fromSTEB(
                                                   8, 8, 8, 8),
                                           child: Icon(
-                                            Icons.shopping_cart_sharp,
+                                            Icons.shopping_bag,
                                             color: Color(0xFF9489F5),
                                             size: 24,
                                           ),
@@ -392,7 +473,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                               EdgeInsetsDirectional.fromSTEB(
                                                   8, 8, 8, 8),
                                           child: Icon(
-                                            Icons.laptop_rounded,
+                                            Icons.devices,
                                             color: Color(0xFF9489F5),
                                             size: 24,
                                           ),
@@ -493,7 +574,7 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
                                               EdgeInsetsDirectional.fromSTEB(
                                                   8, 8, 8, 8),
                                           child: Icon(
-                                            Icons.directions_bus_rounded,
+                                            Icons.directions_car,
                                             color: Color(0xFF9489F5),
                                             size: 24,
                                           ),
@@ -763,6 +844,175 @@ class _AnalyticScreenState extends State<AnalyticScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget bottomTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+        fontWeight: FontWeight.bold, fontSize: 10, color: Color(0xffffffff));
+    Widget text;
+    switch (value.toInt()) {
+      case 0:
+        text = const Text('JAN', style: style);
+        break;
+      case 1:
+        text = const Text('FEB', style: style);
+        break;
+      case 2:
+        text = const Text('MAR', style: style);
+        break;
+      case 3:
+        text = const Text('APR', style: style);
+        break;
+      case 4:
+        text = const Text('MAY', style: style);
+        break;
+      case 5:
+        text = const Text('JUN', style: style);
+        break;
+      case 6:
+        text = const Text('JULY', style: style);
+        break;
+      case 7:
+        text = const Text('AUG', style: style);
+        break;
+      case 8:
+        text = const Text('SEP', style: style);
+        break;
+      case 9:
+        text = const Text('OCT', style: style);
+        break;
+      case 10:
+        text = const Text('NOV', style: style);
+        break;
+      case 11:
+        text = const Text('DEC', style: style);
+        break;
+      default:
+        text = const Text('', style: style);
+        break;
+    }
+
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      child: text,
+    );
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 15,
+    );
+    String text;
+    switch (value.toInt()) {
+      case 1:
+        text = 'Expenses';
+        break;
+
+      default:
+        return Container();
+    }
+
+    return Transform.rotate(
+      angle: -1.5708, // 90 degrees in radians
+      child: Text(text, style: style, textAlign: TextAlign.left),
+    );
+  }
+
+  LineChartData mainData() {
+    return LineChartData(
+      gridData: FlGridData(
+        show: false,
+        drawVerticalLine: true,
+        horizontalInterval: 1,
+        verticalInterval: 1,
+        getDrawingHorizontalLine: (value) {
+          return const FlLine(
+            color: Color(0xffE74852),
+            strokeWidth: 1,
+          );
+        },
+        getDrawingVerticalLine: (value) {
+          return const FlLine(
+            color: Color(0xffE74852),
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        rightTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 30,
+            interval: 1,
+            getTitlesWidget: bottomTitleWidgets,
+          ),
+        ),
+        leftTitles: AxisTitles(
+          axisNameWidget: Text(
+            'Expenses (RM)',
+            style: TextStyle(
+              color: Color(0xffffffff),
+            ),
+          ),
+          axisNameSize: 24,
+          sideTitles: SideTitles(
+            showTitles: false,
+            reservedSize: 0,
+          ),
+        ),
+      ),
+      borderData: FlBorderData(
+        show: true,
+        border: Border.all(width: 4, color: const Color(0xff6D5FED)),
+      ),
+      minX: 0,
+      maxX: 11,
+      minY: 0,
+      maxY: totalLineChartExpense,
+      lineBarsData: [
+        LineChartBarData(
+          spots: [
+            FlSpot(0, expenseJanuary), //jan
+            FlSpot(1, expenseFebruary), //feb
+            FlSpot(2, expenseMarch), //march
+            FlSpot(3, expenseApril), //april
+            FlSpot(4, expenseMay), //may
+            FlSpot(5, expenseJune), //june
+            FlSpot(6, expenseJuly), //juy
+            FlSpot(7, expenseAugust), //aug
+            FlSpot(8, expenseSeptember), //sep
+            FlSpot(9, expenseOctober), //oct
+            FlSpot(10, expenseNovember), //nov
+            FlSpot(11, expenseDecember), //dec
+          ],
+          isCurved: false,
+          gradient: LinearGradient(
+            colors: gradientColors,
+          ),
+          barWidth: 4,
+          isStrokeCapRound: true,
+          dotData: const FlDotData(
+            show: true,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            gradient: LinearGradient(
+              colors: gradientColors
+                  .map((color) => color.withOpacity(0.3))
+                  .toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,405 +1,359 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firstly/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:flutter_svg/svg.dart';
 
 class PiechartScreen extends StatefulWidget {
-  const PiechartScreen({super.key});
+  const PiechartScreen({Key? key}) : super(key: key);
+
   @override
   State<PiechartScreen> createState() => _PiechartScreenState();
 }
 
 class _PiechartScreenState extends State<PiechartScreen> {
+  int touchedIndex = 0;
   final FirebaseAuth auth = FirebaseAuth.instance;
-  final transactionAmountController = TextEditingController();
-  String dropdownValue = 'Shopping';
-  CollectionReference transactionsRef =
+
+  CollectionReference transactiondata =
       FirebaseFirestore.instance.collection('transactions');
-  CollectionReference pieChartDataRef =
-      FirebaseFirestore.instance.collection('piechartdata');
 
-  void saveDataToFirestore(
-      String dropdownValue, double transactionAmount) async {
-    final User? user = auth.currentUser;
-    final useremail = user?.email;
-
-    final formattedIncomeAmount = transactionAmount.toStringAsFixed(2);
-
-    if (useremail != null) {
-      try {
-        await transactionsRef.add({
-          'email': useremail,
-          'transaction amount': formattedIncomeAmount,
-          'transaction category': dropdownValue,
-          'transaction date': Timestamp.now(),
-          'transaction type': 'Expense',
-        });
-
-        // Update pie chart data after adding a new transaction
-        updatePieChartData();
-
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
-
-        Fluttertoast.showToast(
-          msg: 'Data added Successfully',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-        );
-      } catch (error) {
-        print('Error adding data to Firestore: $error');
-        Fluttertoast.showToast(
-          msg: 'Data added Failed',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-        );
-      }
-    }
+  @override
+  void initState() {
+    super.initState();
+    _updateExpenseData();
   }
 
-  // Method to calculate pie chart data and update Firestore
-  Future<void> updatePieChartData() async {
+  Future<void> _updateExpenseData() async {
+    List<PieChartSectionData> sections = await fetchExpenseData();
+    setState(() {
+      _sections = sections;
+    });
+  }
+
+  Future<List<PieChartSectionData>> fetchExpenseData() async {
     final User? user = auth.currentUser;
     final useremail = user?.email;
-    try {
-      QuerySnapshot transactionsSnapshot = await transactionsRef.get();
 
-      // Initialize category amounts
-      double shoppingAmount = 0;
-      double electronicAmount = 0;
-      double transportationAmount = 0;
-      double foodandbeverageAmount = 0;
-      double otherexpensesAmount = 0;
+    QuerySnapshot snapshot =
+        await transactiondata.where('email', isEqualTo: useremail).get();
 
-      // Calculate category amounts based on transactions
-      for (QueryDocumentSnapshot transaction in transactionsSnapshot.docs) {
-        String category = transaction['transaction category'];
-        double amount = double.parse(transaction['transaction amount']);
+    double totalExpense = 0.00;
+    double totalShopping = 0.00;
+    double totalElectronic = 0.00;
+    double totalTransportation = 0.00;
+    double totalFnb = 0.00;
+    double totalOtherExpenses = 0.00;
 
-        switch (category) {
-          case 'Shopping':
-            shoppingAmount += amount;
-            break;
-          case 'Electronic':
-            electronicAmount += amount;
-            break;
-          case 'Transportation':
-            transportationAmount += amount;
-            break;
-          case 'FoodandBeverage':
-            foodandbeverageAmount += amount;
-            break;
-          case 'OtherExpenses':
-            otherexpensesAmount += amount;
-            break;
-          // Handle additional categories if needed
+    for (QueryDocumentSnapshot doc in snapshot.docs) {
+      String transactionType = doc['transaction type'];
+      String transactionCategory = doc['transaction category'];
+      String transactionAmount = doc['transaction amount'];
+
+      double calculationtransactionAmount = double.parse(transactionAmount);
+
+      if (transactionType == 'Expense') {
+        totalExpense += calculationtransactionAmount;
+        if (transactionCategory == 'Shopping') {
+          totalShopping += calculationtransactionAmount;
+        } else if (transactionCategory == 'Electronic') {
+          totalElectronic += calculationtransactionAmount;
+        } else if (transactionCategory == 'Transportation') {
+          totalTransportation += calculationtransactionAmount;
+        } else if (transactionCategory == 'FoodandBeverage') {
+          totalFnb += calculationtransactionAmount;
+        } else if (transactionCategory == 'OtherExpenses') {
+          totalOtherExpenses += calculationtransactionAmount;
         }
       }
-
-      // Calculate total amount
-      double totalAmount = shoppingAmount +
-          electronicAmount +
-          transportationAmount +
-          foodandbeverageAmount +
-          otherexpensesAmount; // Add other categories if needed
-
-      // Calculate percentages based on total amount
-      double shoppingPercent = (shoppingAmount / totalAmount) * 100;
-      double electronicPercent = (electronicAmount / totalAmount) * 100;
-      double transportationPercent = (transportationAmount / totalAmount) * 100;
-      double foodandbeveragePercent =
-          (foodandbeverageAmount / totalAmount) * 100;
-      double otherexpensesPercent = (otherexpensesAmount / totalAmount) * 100;
-
-      int shoppingpercentInt = shoppingPercent.toInt();
-      int electronicpercentInt = electronicPercent.toInt();
-      int transportationpercentInt = transportationPercent.toInt();
-      int foodAndBeveragepercentInt = foodandbeveragePercent.toInt();
-      int otherExpensespercentInt = otherexpensesPercent.toInt();
-
-      // Update pie chart data in Firestore
-      await pieChartDataRef.doc(useremail).update({
-        'Shopping percent': shoppingpercentInt,
-        'Shopping title': shoppingpercentInt.toString(),
-        'Electronic percent': electronicpercentInt,
-        'Electronic title': electronicpercentInt.toString(),
-        'Transportation percent': transportationpercentInt,
-        'Transportation title': transportationpercentInt.toString(),
-        'FoodandBeverage percent': foodAndBeveragepercentInt,
-        'FoodandBeverage title': foodAndBeveragepercentInt.toString(),
-        'OtherExpenses percent': otherExpensespercentInt,
-        'OtherExpenses title': otherExpensespercentInt.toString(),
-      });
-    } catch (error) {
-      print('Error updating pie chart data: $error');
     }
+
+    double calculateShoppingPercent = (totalShopping * 1) / totalExpense;
+    String shoppingTextPercent =
+        (calculateShoppingPercent * 100).toStringAsFixed(0);
+
+    double calculateElectronicPercent = (totalElectronic * 1) / totalExpense;
+    String electronicTextPercent =
+        (calculateElectronicPercent * 100).toStringAsFixed(0);
+
+    double calculateTransportationPercent =
+        (totalTransportation * 1) / totalExpense;
+    String transportationTextPercent =
+        (calculateTransportationPercent * 100).toStringAsFixed(0);
+
+    double calculateFnbPercent = (totalFnb * 1) / totalExpense;
+    String fnbTextPercent = (calculateFnbPercent * 100).toStringAsFixed(0);
+
+    double calculateOtherExpensesPercent =
+        (totalOtherExpenses * 1) / totalExpense;
+    String otherexpensesTextPercent =
+        (calculateOtherExpensesPercent * 100).toStringAsFixed(0);
+
+    return showingSections(
+      calculateShoppingPercent,
+      shoppingTextPercent,
+      calculateElectronicPercent,
+      electronicTextPercent,
+      calculateTransportationPercent,
+      transportationTextPercent,
+      calculateFnbPercent,
+      fnbTextPercent,
+      calculateOtherExpensesPercent,
+      otherexpensesTextPercent,
+    );
   }
 
-  Future<double> getTotalExpense() async {
-    double totalExpense = 0;
+  List<PieChartSectionData> showingSections(
+    double shoppingPercent,
+    String shoppingTextPercent,
+    double electronicPercent,
+    String electronicTextPercent,
+    double transportationPercent,
+    String transportationTextPercent,
+    double fnbPercent,
+    String fnbTextPercent,
+    double otherexpensesPercent,
+    String otherexpensesTextPercent,
+  ) {
+    return List.generate(5, (i) {
+      final fontSize = 16.0;
+      final radius = 125.0;
+      final widgetSize = 40.0;
+      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
 
-    try {
-      QuerySnapshot expensesSnapshot =
-          await FirebaseFirestore.instance.collection('transactions').get();
-
-      for (QueryDocumentSnapshot expense in expensesSnapshot.docs) {
-        // Assuming there's a field named 'transaction amount' in each expense document
-        totalExpense += double.parse(expense['transaction amount']);
+      switch (i) {
+        case 0:
+          return PieChartSectionData(
+            color: Color(0xffF7B7A3),
+            value: shoppingPercent,
+            title: shoppingTextPercent + "%",
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+              shadows: shadows,
+            ),
+            badgeWidget: Container(
+              width: widgetSize + 8.0,
+              height: widgetSize + 8.0,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2.0),
+                  color: Colors.white),
+              child: Icon(
+                Icons.shopping_bag,
+                size: widgetSize - 8,
+                color: Color(0xffF7B7A3),
+              ),
+            ),
+            badgePositionPercentageOffset: .98,
+          );
+        case 1:
+          return PieChartSectionData(
+            color: Color(0xffEA5F89),
+            value: electronicPercent,
+            title: electronicTextPercent + "%",
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+              shadows: shadows,
+            ),
+            badgeWidget: Container(
+              width: widgetSize + 8.0,
+              height: widgetSize + 8.0,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2.0),
+                  color: Colors.white),
+              child: Icon(
+                Icons.devices,
+                size: widgetSize - 8,
+                color: Color(0xffEA5F89),
+              ),
+            ),
+            badgePositionPercentageOffset: .98,
+          );
+        case 2:
+          return PieChartSectionData(
+            color: Color(0xff9B3192),
+            value: transportationPercent,
+            title: transportationTextPercent + "%",
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+              shadows: shadows,
+            ),
+            badgeWidget: Container(
+              width: widgetSize + 8.0,
+              height: widgetSize + 8.0,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2.0),
+                  color: Colors.white),
+              child: Icon(
+                Icons.directions_car,
+                size: widgetSize - 8,
+                color: Color(0xff9B3192),
+              ),
+            ),
+            badgePositionPercentageOffset: .98,
+          );
+        case 3:
+          return PieChartSectionData(
+            color: Color(0xff57167E),
+            value: fnbPercent,
+            title: fnbTextPercent + "%",
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+              shadows: shadows,
+            ),
+            badgeWidget: Container(
+              width: widgetSize + 8.0,
+              height: widgetSize + 8.0,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2.0),
+                  color: Colors.white),
+              child: Icon(
+                Icons.fastfood_rounded,
+                size: widgetSize - 8,
+                color: Color(0xff57167E),
+              ),
+            ),
+            badgePositionPercentageOffset: .98,
+          );
+        case 4:
+          return PieChartSectionData(
+            color: Color(0xff2b0b3f),
+            value: otherexpensesPercent,
+            title: otherexpensesTextPercent + "%",
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xffffffff),
+              shadows: shadows,
+            ),
+            badgeWidget: Container(
+              width: widgetSize + 8.0,
+              height: widgetSize + 8.0,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2.0),
+                  color: Colors.white),
+              child: Icon(
+                Icons.receipt_rounded,
+                size: widgetSize - 8,
+                color: Color(0xff2b0b3f),
+              ),
+            ),
+            badgePositionPercentageOffset: .98,
+          );
+        default:
+          throw Exception('Oh no');
       }
-    } catch (error) {
-      print('Error fetching total expense: $error');
-    }
-
-    return totalExpense;
+    });
   }
+
+  List<PieChartSectionData> _sections = [];
 
   @override
   Widget build(BuildContext context) {
-    final User? user = auth.currentUser;
-    final useremail = user?.email;
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: double.infinity,
-            height: 790,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
-                stops: [0, 1],
-                begin: AlignmentDirectional(0, -1),
-                end: AlignmentDirectional(0, 1),
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0, 180, 0, 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
-                    child: Container(
-                      width: double.infinity,
-                      height: 390,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFFFFFF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Align(
-                        alignment: AlignmentDirectional(0.00, 0.00),
-                        child: Padding(
-                          padding:
-                              EdgeInsetsDirectional.fromSTEB(32, 32, 32, 32),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                'State Your Transaction',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 29.0,
-                                    color: Color(0xFF101213)),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0, 12, 0, 24),
-                                child: Text(
-                                  'State your transaction by filling out the form below.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14.0,
-                                      color: Color(0xFF57636C)),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
-                                child: Container(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0, 0, 16, 0),
-                                  width: double.infinity,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      color: Color(0xFFF1F4F8),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                          color: Color(0xFFE0E3E7), width: 2)),
-                                  child: Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        11, 0, 0, 0),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton(
-                                        elevation: 8,
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w400,
-                                            fontSize: 14.0,
-                                            color: Color(0xFF101213)),
-                                        value: dropdownValue,
-                                        onChanged: (String? newValue) {
-                                          // This is called when the user selects an item.
-                                          setState(() {
-                                            dropdownValue = newValue!;
-                                          });
-                                        },
-                                        items: <String>[
-                                          'Shopping',
-                                          'Electronic',
-                                          'Transportation',
-                                          'FoodandBeverage',
-                                          'OtherExpenses'
-                                        ].map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
-                                        icon: Padding(
-                                          padding:
-                                              EdgeInsetsDirectional.fromSTEB(
-                                                  0, 0, 0, 0),
-                                          child: Icon(
-                                            Icons.keyboard_arrow_down_rounded,
-                                            color: Color(0xFF57636C),
-                                            size: 24,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
-                                child: Container(
-                                  width: double.infinity,
-                                  child: TextFormField(
-                                    controller: transactionAmountController,
-                                    autofocus: true,
-                                    obscureText: false,
-                                    decoration: InputDecoration(
-                                      labelText: 'Transaction Amount',
-                                      labelStyle: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14.0,
-                                          color: Color(0xFF57636C)),
-                                      alignLabelWithHint: false,
-                                      hintStyle: TextStyle(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 12.0,
-                                          color: Color(0xFF57636C)),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Color(0xFFF1F4F8),
-                                          width: 2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Color(0xFF9489F5),
-                                          width: 2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Color(0xFFE0E3E7),
-                                          width: 2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      focusedErrorBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Color(0xFFE74852),
-                                          width: 2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      filled: true,
-                                      fillColor: Color(0xFFF1F4F8),
-                                    ),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16.0,
-                                        color: Color(0xFF101213)),
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(
-                                            decimal: true),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    0, 16, 0, 16),
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.transparent,
-                                        width: 1,
-                                      )),
-                                  child: ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.resolveWith(
-                                              (states) {
-                                        if (states
-                                            .contains(MaterialState.pressed)) {
-                                          return Color(0xFF6D5FED);
-                                        }
-                                        return Color(0xFF9489F5);
-                                      }),
-                                      shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      String selectedDropdownValue =
-                                          dropdownValue;
-                                      double transactionAmount = double.parse(
-                                          transactionAmountController.text);
-
-                                      saveDataToFirestore(selectedDropdownValue,
-                                          transactionAmount);
-                                    },
-                                    child: const Text(
-                                      "Submit",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16.0,
-                                        color: Color(0xFFFFFFFF),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF9489F5),
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF9489F5), Color(0xFF6D5FED)],
+            stops: [0, 1],
+            begin: AlignmentDirectional(0, -1),
+            end: AlignmentDirectional(0, 1),
+          ),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 380,
+                decoration: BoxDecoration(
+                  color: Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(0),
+                    bottomRight: Radius.circular(0),
+                    topLeft: Radius.circular(0),
+                    topRight: Radius.circular(0),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 0),
+                      child: Text(
+                        'Expenses',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 28.0,
+                            color: Color(0xFF101213)),
                       ),
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Padding(
+                          padding:
+                              EdgeInsetsDirectional.fromSTEB(16, 42, 16, 12),
+                          child: Container(
+                            width: 370,
+                            height: 230,
+                            child: AspectRatio(
+                              aspectRatio: 1.3,
+                              child: AspectRatio(
+                                aspectRatio: 1,
+                                child: PieChart(
+                                  PieChartData(
+                                    pieTouchData: PieTouchData(),
+                                    borderData: FlBorderData(
+                                      show: false,
+                                    ),
+                                    sectionsSpace: 0,
+                                    centerSpaceRadius: 0,
+                                    sections: _sections,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

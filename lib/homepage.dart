@@ -1,8 +1,11 @@
 import 'package:firstly/screens/analytic_screen.dart';
 import 'package:firstly/screens/expenses_screen.dart';
 import 'package:firstly/screens/home_screen.dart';
+import 'package:firstly/screens/legend_screen.dart';
+import 'package:firstly/screens/linechart.dart';
 import 'package:firstly/screens/piechart.dart';
 import 'package:firstly/screens/profile_screen.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,7 +28,7 @@ class _HomePageState extends State<HomePage> {
     HomeScreen(),
     ExpensesScreen(),
     AnalyticScreen(),
-    PiechartScreen(),
+    ProfileScreen(),
   ];
 
   @override

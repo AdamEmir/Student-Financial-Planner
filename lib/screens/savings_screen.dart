@@ -1,56 +1,47 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firstly/homepage.dart';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
-class AllowanceScreen extends StatefulWidget {
-  const AllowanceScreen({super.key});
+class SavingsScreen extends StatefulWidget {
+  const SavingsScreen({super.key});
 
   @override
-  State<AllowanceScreen> createState() => _AllowanceScreenState();
+  State<SavingsScreen> createState() => _SavingsScreenState();
 }
 
-class _AllowanceScreenState extends State<AllowanceScreen> {
+class _SavingsScreenState extends State<SavingsScreen> {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  final incomeAmountController = TextEditingController();
-  final incomeDescriptionController = TextEditingController();
-  final incomeDateController = TextEditingController();
-  String dropdownValue = 'Allowance';
+  final savingsNameController = TextEditingController();
+  final savingsDescriptionController = TextEditingController();
+  final savingsDateController = TextEditingController();
+
+  String dropdownValue = '0%';
 
   // Get the collection reference
-  CollectionReference transactionsRef =
-      FirebaseFirestore.instance.collection('transactions');
+  CollectionReference savingsRef =
+      FirebaseFirestore.instance.collection('savings');
 
-  void saveDataToFirestore(String dropdownValue, double incomeAmount,
-      String incomeDescription, String incomeDate) async {
+  void saveDataToFirestore(String dropdownValue, String savingsName,
+      String savingsDescription, String savingsDate) async {
     final User? user = auth.currentUser;
     final useremail = user?.email;
-
-    final currentbarchartmax = await getUserbarchartmax(useremail!);
-
-    final totalbarchartmax = currentbarchartmax + incomeAmount;
-
-    setUserbarchartmax(totalbarchartmax, useremail);
-
-    final formattedIncomeAmout = incomeAmount.toStringAsFixed(2);
 
     // Convert selectedDate to Timestamp
     final timestamp = Timestamp.fromDate(selectedDate);
 
     // Get the user's unique ID (you can use the user's email as well)
     if (useremail != null) {
-      transactionsRef.add({
+      savingsRef.doc(useremail).update({
         'email': useremail,
-        'transaction amount': formattedIncomeAmout,
-        'transaction category': dropdownValue,
-        'transaction type': 'Income',
-        'transaction description': incomeDescription,
-        'transaction date': timestamp,
-        'transaction date created': Timestamp.now(),
+        'savings name': savingsName,
+        'savings percentage': dropdownValue,
+        'savings description': savingsDescription,
+        'savings date': timestamp,
+        'savings date created': Timestamp.now(),
       }).then((value) {
         // Data added successfully
         print('Data added to Firestore.');
@@ -58,7 +49,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
             context, MaterialPageRoute(builder: (context) => HomePage()));
 
         Fluttertoast.showToast(
-          msg: 'Data added Successfully',
+          msg: 'Savings set Successfully',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
         );
@@ -72,28 +63,6 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
         );
       });
     }
-  }
-
-  Future getUserbarchartmax(String useremail) async {
-    final UserbarchartmaxRef =
-        FirebaseFirestore.instance.collection('userbarchartmax').doc(useremail);
-    final UserbarchartmaxDoc = await UserbarchartmaxRef.get();
-    if (UserbarchartmaxDoc.exists) {
-      return double.parse(UserbarchartmaxDoc.get('barchartmax'));
-    } else {
-      return 0;
-    }
-  }
-
-  Future setUserbarchartmax(double totalbarchartmax, String useremail) async {
-    await FirebaseFirestore.instance
-        .collection('userbarchartmax')
-        .doc(useremail)
-        .set({
-      'barchartmax': totalbarchartmax.toString(),
-      'updated at': Timestamp.now(),
-      'email': useremail,
-    });
   }
 
   DateTime selectedDate = DateTime.now();
@@ -119,7 +88,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
 
       setState(() {
         selectedDate = selectedDateTime;
-        incomeDateController.text =
+        savingsDateController.text =
             DateFormat("dd MMMM yyyy , hh:mm:ss a").format(selectedDateTime);
       });
     }
@@ -169,7 +138,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    'State Your Income',
+                                    'State Your Savings',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
@@ -180,7 +149,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0, 12, 0, 24),
                                     child: Text(
-                                      'State your income by filling out the form below.',
+                                      'State your savings by filling out the form below.',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500,
@@ -221,10 +190,12 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                               });
                                             },
                                             items: <String>[
-                                              'Allowance',
-                                              'Business',
-                                              'Salary',
-                                              'Others'
+                                              '0%',
+                                              '5%',
+                                              '10%',
+                                              '15%',
+                                              '20%',
+                                              '25%'
                                             ].map((String value) {
                                               return DropdownMenuItem<String>(
                                                 value: value,
@@ -246,15 +217,16 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                       ),
                                     ),
                                   ),
+                                  //Income Description Start
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0, 0, 0, 16),
                                     child: Container(
                                       width: double.infinity,
                                       child: TextFormField(
-                                        controller: incomeAmountController,
+                                        controller: savingsNameController,
                                         decoration: InputDecoration(
-                                          labelText: 'Income Amount',
+                                          labelText: 'Savings Name',
                                           labelStyle: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 14.0,
@@ -304,19 +276,18 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                             fontWeight: FontWeight.w400,
                                             fontSize: 16.0,
                                             color: Color(0xFF101213)),
-                                        keyboardType: const TextInputType
-                                            .numberWithOptions(decimal: true),
                                       ),
                                     ),
                                   ),
-                                  //Income Description Start
+                                  //Income Description Ends
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0, 0, 0, 16),
                                     child: Container(
                                       width: double.infinity,
                                       child: TextFormField(
-                                        controller: incomeDescriptionController,
+                                        controller:
+                                            savingsDescriptionController,
                                         decoration: InputDecoration(
                                           labelText: 'Description',
                                           labelStyle: TextStyle(
@@ -371,7 +342,6 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                       ),
                                     ),
                                   ),
-                                  //Income Description Ends
                                   //Income Date Start
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
@@ -379,7 +349,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                     child: Container(
                                       width: double.infinity,
                                       child: TextFormField(
-                                        controller: incomeDateController,
+                                        controller: savingsDateController,
                                         onTap: () => _selectDate(context),
                                         readOnly: true,
                                         decoration: InputDecoration(
@@ -473,23 +443,23 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                         onPressed: () {
                                           String selectedDropdownValue =
                                               dropdownValue;
-                                          double incomeAmount = double.parse(
-                                              incomeAmountController.text);
+                                          String savingsName =
+                                              savingsNameController.text;
 
-                                          String incomeDecription =
-                                              incomeDescriptionController.text;
+                                          String savingsDecription =
+                                              savingsDescriptionController.text;
 
-                                          String incomeDate =
-                                              incomeDateController.text;
+                                          String savingsDate =
+                                              savingsDateController.text;
 
                                           saveDataToFirestore(
                                               selectedDropdownValue,
-                                              incomeAmount,
-                                              incomeDecription,
-                                              incomeDate);
+                                              savingsName,
+                                              savingsDecription,
+                                              savingsDate);
                                         },
                                         child: const Text(
-                                          "Submit",
+                                          "Set",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w400,
                                             fontSize: 16.0,
@@ -506,7 +476,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                 left: 13, // Adjust the position as needed
                                 top: 87, // Adjust the position as needed
                                 child: Text(
-                                  'Income Type',
+                                  'Savings Percentage',
                                   style: TextStyle(
                                       color: Color(0xFF57636C),
                                       fontWeight: FontWeight.w500,

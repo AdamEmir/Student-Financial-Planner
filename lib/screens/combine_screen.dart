@@ -1,5 +1,6 @@
-import 'package:firstly/screens/addexpense_screen.dart';
 import 'package:firstly/screens/allowance_screen.dart';
+import 'package:firstly/screens/expenses_transaction_screen.dart';
+import 'package:firstly/screens/savings_screen.dart';
 import 'package:flutter/material.dart';
 export 'package:firstly/screens/combine_screen.dart';
 
@@ -18,7 +19,7 @@ class CombineScreenState extends State<CombineScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController!.addListener(() {
       setState(() {
         _tabIndex = _tabController!.index;
@@ -30,16 +31,17 @@ class CombineScreenState extends State<CombineScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF9489F5),
+        leading: BackButton(color: Color(0xFF9489F5)),
+        backgroundColor: Color(0xFFFFFFFF),
         bottom: TabBar(
           controller: _tabController,
           labelColor: Color(0xFF39D2C0),
           unselectedLabelColor: Color(0xFF57636C),
-          labelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 18.0),
+          labelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.0),
           unselectedLabelStyle: TextStyle(),
           indicatorColor: Color(0xFF39D2C0),
           indicatorWeight: 5,
-          padding: EdgeInsetsDirectional.fromSTEB(4, 4, 4, 4),
+          padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
           tabs: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -61,11 +63,25 @@ class CombineScreenState extends State<CombineScreen>
                 Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0, 0, 10, 0),
                   child: Icon(
+                    Icons.savings_rounded,
+                  ),
+                ),
+                Tab(
+                  text: 'Savings',
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0, 0, 10, 0),
+                  child: Icon(
                     Icons.trending_down_rounded,
                   ),
                 ),
                 Tab(
-                  text: 'Transaction',
+                  text: 'Expenses',
                 ),
               ],
             ),
@@ -76,7 +92,8 @@ class CombineScreenState extends State<CombineScreen>
         index: _tabIndex,
         children: [
           AllowanceScreen(),
-          AddExpenseScreen(),
+          SavingsScreen(),
+          ExpensesTransactionScreen(),
         ],
       ),
     );

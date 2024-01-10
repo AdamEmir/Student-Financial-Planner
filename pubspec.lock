@@ -113,6 +113,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.6"
+  email_validator:
+    dependency: "direct main"
+    description:
+      name: email_validator
+      sha256: e9a90f27ab2b915a27d7f9c2a7ddda5dd752d6942616ee83529b686fc086221b
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.17"
+  emojis:
+    dependency: "direct main"
+    description:
+      name: emojis
+      sha256: "2e4d847c3f1e2670f30dc355909ce6fa7808b4e626c34a4dd503a360995a38bf"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.9"
   equatable:
     dependency: transitive
     description:
@@ -230,6 +246,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  flutter_sequence_animation:
+    dependency: "direct main"
+    description:
+      name: flutter_sequence_animation
+      sha256: "48f28a8395e410f5b4a47a86fe77974ee8fbab3db935d22933dbb3af27447d01"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   flutter_speed_dial:
     dependency: "direct main"
     description:
