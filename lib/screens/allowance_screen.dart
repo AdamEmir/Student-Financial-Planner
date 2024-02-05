@@ -58,17 +58,25 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
             context, MaterialPageRoute(builder: (context) => HomePage()));
 
         Fluttertoast.showToast(
-          msg: 'Data added Successfully',
+          msg: 'Income added successfully',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }).catchError((error) {
         // Error handling
         print('Error adding data to Firestore: $error');
         Fluttertoast.showToast(
-          msg: 'Data added Failed',
+          msg: 'Income added Failed',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       });
     }
@@ -173,7 +181,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 35.0,
+                                        fontSize: 25.0,
                                         color: Color(0xFF101213)),
                                   ),
                                   Padding(
@@ -184,7 +192,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500,
-                                          fontSize: 14.0,
+                                          fontSize: 12.0,
                                           color: Color(0xFF57636C)),
                                     ),
                                   ),
@@ -504,7 +512,7 @@ class _AllowanceScreenState extends State<AllowanceScreen> {
                               ),
                               Positioned(
                                 left: 13, // Adjust the position as needed
-                                top: 87, // Adjust the position as needed
+                                top: 77, // Adjust the position as needed
                                 child: Text(
                                   'Income Type',
                                   style: TextStyle(

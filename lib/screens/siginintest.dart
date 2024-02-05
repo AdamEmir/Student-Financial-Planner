@@ -392,8 +392,8 @@ class _SigninTestScreenState extends State<SigninTestScreen> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
         fontSize: 16.0,
       );
     } on FirebaseAuthException catch (error) {
@@ -404,8 +404,8 @@ class _SigninTestScreenState extends State<SigninTestScreen> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
         fontSize: 16.0,
       );
     }

@@ -260,274 +260,327 @@ class _MyWidgetState extends State<HomeScreen> {
           image: AssetImage("assets/images/bg2.png"),
           fit: BoxFit.cover,
         )),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              width: double.infinity,
-              height: 345,
-              decoration: BoxDecoration(
-                color: Color(0xFFFFFFFF),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 4,
-                    color: Color(0x33000000),
-                    offset: Offset(0, 2),
-                  )
-                ],
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                  topLeft: Radius.circular(0),
-                  topRight: Radius.circular(0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 345,
+                decoration: BoxDecoration(
+                  color: Color(0xFFFFFFFF),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 4,
+                      color: Color(0x33000000),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                    topLeft: Radius.circular(0),
+                    topRight: Radius.circular(0),
+                  ),
                 ),
-              ),
-              child: Column(
-                //mother column
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 32, 16, 12),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Padding(
-                            padding:
-                                EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0, 0, 0, 4),
-                                  child: Text(
-                                    'Welcome',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 28.0),
+                child: Column(
+                  //mother column
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(16, 32, 16, 12),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 0, 4),
+                                    child: Text(
+                                      'Welcome',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 28.0),
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  ' $userfullname',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 16.0),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1,
-                                color: Colors.transparent,
+                                  Text(
+                                    ' $userfullname',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 16.0),
+                                  ),
+                                ],
                               ),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Icon(
-                              Icons.notifications_rounded,
-                              color: getIconButtonColor(),
-                              size: 30,
                             ),
                           ),
-                          onPressed: () {
-                            double income = totalIncomeDeduction;
-                            double expense = totalExpense;
-                            double savings = savingsNumbers;
-                            if (income > expense) {
-                              // Good message with green color
-                              Fluttertoast.showToast(
-                                msg: "Spending Behavior Excellent",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                textColor: Colors.white,
-                              );
-                            } else if (income < expense) {
-                              // Not good message with orange color
-                              Fluttertoast.showToast(
-                                msg: "Spending Behavior Average",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                textColor: Colors.white,
-                              );
-                            } else if (income < savings) {
-                              // Bad message with red color
-                              Fluttertoast.showToast(
-                                msg: "Spending Behavior At Critial",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                textColor: Colors.white,
-                              );
-                            } else {
-                              // Handle other cases or display a default message
-                            }
-                          },
-                        ),
+                          IconButton(
+                            icon: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 1,
+                                  color: Colors.transparent,
+                                ),
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Icon(
+                                Icons.notifications_rounded,
+                                color: getIconButtonColor(),
+                                size: 30,
+                              ),
+                            ),
+                            onPressed: () {
+                              double income = totalIncomeDeduction;
+                              double expense = totalExpense;
+                              double savings = savingsNumbers;
+                              if (income > expense) {
+                                // Good message with green color
+                                Fluttertoast.showToast(
+                                  msg: "Spending Behavior Excellent",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  textColor: Colors.white,
+                                );
+                              } else if (income <= expense &&
+                                  income > savings) {
+                                // Not good message with orange color
+                                Fluttertoast.showToast(
+                                  msg: "Spending Behavior Average",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  textColor: Colors.white,
+                                );
+                              } else if (income <= savings &&
+                                  income < expense) {
+                                // Bad message with red color
+                                Fluttertoast.showToast(
+                                  msg: "Spending Behavior At Critial",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  textColor: Colors.white,
+                                );
+                              } else {
+                                // Handle other cases or display a default message
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          padding:
+                              EdgeInsetsDirectional.fromSTEB(16, 42, 16, 12),
+                          width: 370,
+                          height: 210,
+                          child: BarChart(
+                            BarChartData(
+                              barTouchData: barTouchData,
+                              titlesData: titlesData,
+                              borderData: borderData,
+                              barGroups: barGroups,
+                              gridData: const FlGridData(show: false),
+                              alignment: BarChartAlignment.spaceAround,
+                              maxY: parsebarchartMax,
+                            ),
+                          ),
+                        )
                       ],
                     ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Container(
-                        padding: EdgeInsetsDirectional.fromSTEB(16, 42, 16, 12),
-                        width: 370,
-                        height: 220,
-                        child: BarChart(
-                          BarChartData(
-                            barTouchData: barTouchData,
-                            titlesData: titlesData,
-                            borderData: borderData,
-                            barGroups: barGroups,
-                            gridData: const FlGridData(show: false),
-                            alignment: BarChartAlignment.spaceAround,
-                            maxY: parsebarchartMax,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Text(
-                    '${getTextStatus()}',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14.0,
-                        color: getIconButtonColor()),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(16, 14, 16, 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
-                    child: Text(
-                      'Recent Transactions (Editable)',
+                    Text(
+                      '${getTextStatus()}',
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 16.0,
-                          color: Color(0xFFFFFFFF)),
+                          fontSize: 14.0,
+                          color: getIconButtonColor()),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        StreamBuilder<QuerySnapshot>(
-                          stream: transactionsRef
-                              .where('email',
-                                  isEqualTo: auth.currentUser?.email)
-                              .orderBy('transaction date created',
-                                  descending: true)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            }
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(16, 14, 16, 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(0, 4, 0, 0),
+                      child: Text(
+                        'Recent Transactions (Editable)',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16.0,
+                            color: Color(0xFFFFFFFF)),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 36),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          StreamBuilder<QuerySnapshot>(
+                            stream: transactionsRef
+                                .where('email',
+                                    isEqualTo: auth.currentUser?.email)
+                                .orderBy('transaction date created',
+                                    descending: true)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              }
 
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator(); // or a loading indicator
-                            }
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator(); // or a loading indicator
+                              }
 
-                            // If we reach here, we have data
-                            var transactions = snapshot.data!.docs;
+                              // If we reach here, we have data
+                              var transactions = snapshot.data!.docs;
 
-                            // Build the list of transactions
-                            List<Widget> transactionWidgets =
-                                transactions.take(3).map((data) {
-                              // Use your existing code for building a transaction widget
-                              return GestureDetector(
-                                onTap: () {
-                                  // Navigate to the details screen
-                                  navigateToDetailsScreen(data);
-                                },
-                                child: Padding(
-                                  padding: EdgeInsetsDirectional.fromSTEB(
-                                      0, 0, 0, 12),
-                                  child: Container(
-                                    width:
-                                        MediaQuery.sizeOf(context).width * 0.92,
-                                    height: 70,
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFFFFFFFF),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          blurRadius: 3,
-                                          color: Color(0x35000000),
-                                          offset: Offset(0, 1),
-                                        )
-                                      ],
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: Color(0xFFF1F4F8),
-                                        width: 1,
+                              // Build the list of transactions
+                              List<Widget> transactionWidgets =
+                                  transactions.take(3).map((data) {
+                                // Use your existing code for building a transaction widget
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Navigate to the details screen
+                                    navigateToDetailsScreen(data);
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsetsDirectional.fromSTEB(
+                                        0, 0, 0, 12),
+                                    child: Container(
+                                      width: MediaQuery.sizeOf(context).width *
+                                          0.92,
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFFFFFFFF),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            blurRadius: 3,
+                                            color: Color(0x35000000),
+                                            offset: Offset(0, 1),
+                                          )
+                                        ],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Color(0xFFF1F4F8),
+                                          width: 1,
+                                        ),
                                       ),
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          4, 4, 4, 4),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    8, 0, 0, 0),
-                                            child: Card(
-                                              clipBehavior:
-                                                  Clip.antiAliasWithSaveLayer,
-                                              color: Color(0xFFFFFFFF),
-                                              shadowColor: Color(0xFF9489F5),
-                                              elevation: 4,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(40),
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsetsDirectional
-                                                    .fromSTEB(8, 8, 8, 8),
-                                                child: Icon(
-                                                  _getIconForCategory(data[
-                                                      'transaction category']),
-                                                  color: Color(0xFF9489F5),
-                                                  size: 24,
+                                      child: Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            4, 4, 4, 4),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(8, 0, 0, 0),
+                                              child: Card(
+                                                clipBehavior:
+                                                    Clip.antiAliasWithSaveLayer,
+                                                color: Color(0xFFFFFFFF),
+                                                shadowColor: Color(0xFF9489F5),
+                                                elevation: 4,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(40),
+                                                ),
+                                                child: Padding(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(8, 8, 8, 8),
+                                                  child: Icon(
+                                                    _getIconForCategory(data[
+                                                        'transaction category']),
+                                                    color: Color(0xFF9489F5),
+                                                    size: 24,
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
+                                            Expanded(
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(12, 0, 0, 0),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${data['transaction category']}',
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w400,
+                                                          fontSize: 16.0,
+                                                          color: Color(
+                                                              0xFF101213)),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          EdgeInsetsDirectional
+                                                              .fromSTEB(
+                                                                  0, 4, 0, 0),
+                                                      child: Text(
+                                                        '${data['transaction type']}',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            fontSize: 11.0,
+                                                            color: data['transaction type'] ==
+                                                                    'Expense'
+                                                                ? Color(
+                                                                    0xFFE74852)
+                                                                : Color(
+                                                                    0xFF24A891)),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
                                               padding: EdgeInsetsDirectional
-                                                  .fromSTEB(12, 0, 0, 0),
+                                                  .fromSTEB(12, 0, 12, 0),
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.max,
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
                                                 crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                    CrossAxisAlignment.end,
                                                 children: [
                                                   Text(
-                                                    '${data['transaction category']}',
+                                                    'RM' +
+                                                        '${data['transaction amount']}',
+                                                    textAlign: TextAlign.end,
                                                     style: TextStyle(
                                                         fontWeight:
-                                                            FontWeight.w400,
-                                                        fontSize: 16.0,
+                                                            FontWeight.w500,
+                                                        fontSize: 22.0,
                                                         color:
-                                                            Color(0xFF101213)),
+                                                            data['transaction type'] ==
+                                                                    'Expense'
+                                                                ? Color(
+                                                                    0xFFE74852)
+                                                                : Color(
+                                                                    0xFF24A891)),
                                                   ),
                                                   Padding(
                                                     padding:
@@ -535,92 +588,48 @@ class _MyWidgetState extends State<HomeScreen> {
                                                             .fromSTEB(
                                                                 0, 4, 0, 0),
                                                     child: Text(
-                                                      '${data['transaction type']}',
+                                                      '${formatTransactionDate(data['transaction date'])}',
+                                                      textAlign: TextAlign.end,
                                                       style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.w500,
-                                                          fontSize: 11.0,
-                                                          color: data['transaction type'] ==
-                                                                  'Expense'
-                                                              ? Color(
-                                                                  0xFFE74852)
-                                                              : Color(
-                                                                  0xFF24A891)),
+                                                          fontSize: 14.0,
+                                                          color: Color(
+                                                              0xFF57636C)),
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                          ),
-                                          Padding(
-                                            padding:
-                                                EdgeInsetsDirectional.fromSTEB(
-                                                    12, 0, 12, 0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                  'RM' +
-                                                      '${data['transaction amount']}',
-                                                  textAlign: TextAlign.end,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 22.0,
-                                                      color: data['transaction type'] ==
-                                                              'Expense'
-                                                          ? Color(0xFFE74852)
-                                                          : Color(0xFF24A891)),
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(0, 4, 0, 0),
-                                                  child: Text(
-                                                    '${formatTransactionDate(data['transaction date'])}',
-                                                    textAlign: TextAlign.end,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontSize: 14.0,
-                                                        color:
-                                                            Color(0xFF57636C)),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList();
+                                );
+                              }).toList();
 
-                            return Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: transactionWidgets,
-                            );
-                          },
-                        ),
-                        Container(
-                          width: double.infinity,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: Color(0x00FFFFFF),
+                              return Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: transactionWidgets,
+                              );
+                            },
                           ),
-                        ),
-                      ],
+                          Container(
+                            width: double.infinity,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: Color(0x00FFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

@@ -30,7 +30,7 @@ class _MyWidgetState extends State<SignUpTestScreen> {
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime(2025),
     );
 
     if (picked != null) {
@@ -112,6 +112,10 @@ class _MyWidgetState extends State<SignUpTestScreen> {
         msg: 'User created Successfully',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0,
       );
     });
   }

@@ -53,16 +53,24 @@ class _ExpensesTransactionScreenState extends State<ExpensesTransactionScreen> {
             context, MaterialPageRoute(builder: (context) => HomePage()));
 
         Fluttertoast.showToast(
-          msg: 'Data added Successfully',
+          msg: 'Expense added Successfully',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       } catch (error) {
         print('Error adding data to Firestore: $error');
         Fluttertoast.showToast(
-          msg: 'Data added Failed',
+          msg: 'Expense added Failed',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }
     }
@@ -242,7 +250,7 @@ class _ExpensesTransactionScreenState extends State<ExpensesTransactionScreen> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 34.0,
+                                        fontSize: 25.0,
                                         color: Color(0xFF101213)),
                                   ),
                                   Padding(
@@ -253,7 +261,7 @@ class _ExpensesTransactionScreenState extends State<ExpensesTransactionScreen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500,
-                                          fontSize: 14.0,
+                                          fontSize: 12.0,
                                           color: Color(0xFF57636C)),
                                     ),
                                   ),
@@ -577,7 +585,7 @@ class _ExpensesTransactionScreenState extends State<ExpensesTransactionScreen> {
                               ),
                               Positioned(
                                 left: 13, // Adjust the position as needed
-                                top: 87, // Adjust the position as needed
+                                top: 77, // Adjust the position as needed
                                 child: Text(
                                   'Transaction Type',
                                   style: TextStyle(

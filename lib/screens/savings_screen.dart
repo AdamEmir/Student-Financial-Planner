@@ -44,22 +44,30 @@ class _SavingsScreenState extends State<SavingsScreen> {
         'savings date created': Timestamp.now(),
       }).then((value) {
         // Data added successfully
-        print('Data added to Firestore.');
+        print('Saving set to Firestore.');
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
 
         Fluttertoast.showToast(
-          msg: 'Savings set Successfully',
+          msg: 'Saving set Successfully',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       }).catchError((error) {
         // Error handling
-        print('Error adding data to Firestore: $error');
+        print('Error Saving set to Firestore: $error');
         Fluttertoast.showToast(
-          msg: 'Data added Failed',
+          msg: 'Saving set Failed',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0,
         );
       });
     }
@@ -142,7 +150,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 35.0,
+                                        fontSize: 25.0,
                                         color: Color(0xFF101213)),
                                   ),
                                   Padding(
@@ -153,7 +161,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           fontWeight: FontWeight.w500,
-                                          fontSize: 14.0,
+                                          fontSize: 12.0,
                                           color: Color(0xFF57636C)),
                                     ),
                                   ),
@@ -474,7 +482,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
                               ),
                               Positioned(
                                 left: 13, // Adjust the position as needed
-                                top: 87, // Adjust the position as needed
+                                top: 77, // Adjust the position as needed
                                 child: Text(
                                   'Savings Percentage',
                                   style: TextStyle(

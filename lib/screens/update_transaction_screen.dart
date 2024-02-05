@@ -172,7 +172,7 @@ class _UpdateTransactionScreenState extends State<UpdateTransactionScreen> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 34.0,
+                                fontSize: 25.0,
                                 color: Color(0xFF101213)),
                           ),
                           Padding(
@@ -183,7 +183,7 @@ class _UpdateTransactionScreenState extends State<UpdateTransactionScreen> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 14.0,
+                                  fontSize: 12.0,
                                   color: Color(0xFF57636C)),
                             ),
                           ),
