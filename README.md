@@ -1,6 +1,6 @@
-# firstly
+# Student Financial Planner
 
-A new Flutter project.
+A new Flutter final year project.
 
 ## Getting Started
 
